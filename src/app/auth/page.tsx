@@ -15,10 +15,16 @@ export default function AuthPage(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false); // State to toggle between Sign In and Sign Up
+  const [isPhoneAuth, setIsPhoneAuth] = useState(false); // State to toggle between Phone Auth and Email Auth
+  const [phoneNumber, setPhoneNumber] = useState(""); // State for phone number
+  const [verificationCode, setVerificationCode] = useState(""); // State for verification code
+  const [confirmResult, setConfirmResult] =
+    useState<firebase.auth.ConfirmationResult | null>(null); // Store confirmation result for phone auth
   const router = useRouter(); // Next.js router for navigation
 
   const db = getFirestore(firebaseApp); // Firestore instance
 
+  // Email Sign-In
   const handleSignIn = async () => {
     setLoading(true);
     setError(null);
@@ -32,6 +38,7 @@ export default function AuthPage(): JSX.Element {
     }
   };
 
+  // Email Sign-Up
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
@@ -60,14 +67,15 @@ export default function AuthPage(): JSX.Element {
         const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, {
           uid: user.uid,
-          displayName: displayName || "Anonymous", // Use the provided display name or default to "Anonymous"
+          displayName: displayName, // Use the provided display name or default to "Anonymous"
           email: user.email,
           createdAt: new Date(),
+          phoneNumber: user.phoneNumber,
         });
 
         // Optionally, update the Firebase user profile display name
         await user.updateProfile({
-          displayName: displayName || "Anonymous",
+          displayName: displayName,
         });
       }
 
@@ -79,6 +87,46 @@ export default function AuthPage(): JSX.Element {
     }
   };
 
+  // Handle Phone Authentication
+  const handlePhoneSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    const recaptchaVerifier: firebase.auth.RecaptchaVerifier =
+      new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+        size: "invisible",
+        callback: (response: any) => console.log(response),
+      });
+
+    try {
+      const confirmation = await firebaseApp
+        .auth()
+        .signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
+      setConfirmResult(confirmation); // Store the confirmation result
+    } catch (err: any) {
+      setError("Phone authentication failed: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify the phone number using the entered verification code
+  const handleVerifyCode = async () => {
+    if (!confirmResult || !verificationCode) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await confirmResult.confirm(verificationCode);
+      router.push("/"); // Redirect to home page after phone authentication
+    } catch (err: any) {
+      setError("Failed to verify code: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Password Reset
   const handlePasswordReset = async () => {
     setLoading(true);
     setError(null);
@@ -98,25 +146,45 @@ export default function AuthPage(): JSX.Element {
         {/* Tab View */}
         <div className="flex border-b mb-4">
           <button
-            onClick={() => setIsSignUp(false)}
-            className={`w-1/2 py-2 text-center ${
-              !isSignUp ? "border-b-2 border-blue-500 font-bold" : ""
+            onClick={() => {
+              setIsPhoneAuth(false);
+              setIsSignUp(false);
+            }}
+            className={`w-1/3 py-2 text-center ${
+              !isPhoneAuth && !isSignUp
+                ? "border-b-2 border-blue-500 font-bold"
+                : ""
             }`}
           >
-            Sign In
+            Email Auth
           </button>
           <button
-            onClick={() => setIsSignUp(true)}
-            className={`w-1/2 py-2 text-center ${
+            onClick={() => {
+              setIsPhoneAuth(false);
+              setIsSignUp(true);
+            }}
+            className={`w-1/3 py-2 text-center ${
               isSignUp ? "border-b-2 border-blue-500 font-bold" : ""
             }`}
           >
             Sign Up
           </button>
+          <button
+            onClick={() => setIsPhoneAuth(true)}
+            className={`w-1/3 py-2 text-center ${
+              isPhoneAuth ? "border-b-2 border-blue-500 font-bold" : ""
+            }`}
+          >
+            Phone Auth
+          </button>
         </div>
 
         <h1 className="text-xl font-bold mb-4">
-          {isSignUp ? "Sign Up" : "Sign In"}
+          {isPhoneAuth
+            ? "Phone Authentication"
+            : isSignUp
+            ? "Sign Up"
+            : "Sign In"}
         </h1>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -126,56 +194,97 @@ export default function AuthPage(): JSX.Element {
           </p>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-        />
-
-        {isSignUp && (
-          <input
-            type="text"
-            placeholder="Display Name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full p-2 mb-4 border rounded"
-          />
-        )}
-
-        <button
-          onClick={isSignUp ? handleSignUp : handleSignIn}
-          disabled={loading}
-          className="w-full bg-blue-500 text-white p-2 rounded mb-2"
-        >
-          {loading
-            ? isSignUp
-              ? "Creating Account..."
-              : "Signing In..."
-            : isSignUp
-            ? "Sign Up"
-            : "Sign In"}
-        </button>
-
-        {isSignUp ? (
-          <div className="flex justify-between items-center">
+        {isPhoneAuth ? (
+          <>
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="w-full p-2 mb-4 border rounded"
+            />
             <button
-              onClick={handlePasswordReset}
-              className="text-blue-500 text-sm"
+              onClick={handlePhoneSignIn}
               disabled={loading}
+              className="w-full bg-blue-500 text-white p-2 rounded mb-2"
             >
-              Forgot password?
+              {loading ? "Sending OTP..." : "Send OTP"}
             </button>
-          </div>
-        ) : null}
+            <div id="recaptcha-container"></div>
+
+            {confirmResult && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Verification Code"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  className="w-full p-2 mb-4 border rounded"
+                />
+                <button
+                  onClick={handleVerifyCode}
+                  disabled={loading}
+                  className="w-full bg-blue-500 text-white p-2 rounded mb-2"
+                >
+                  {loading ? "Verifying..." : "Verify Code"}
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 mb-4 border rounded"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 mb-4 border rounded"
+            />
+
+            {(isSignUp || isPhoneAuth) && (
+              <input
+                type="text"
+                placeholder="Display Name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full p-2 mb-4 border rounded"
+              />
+            )}
+
+            <button
+              onClick={isSignUp ? handleSignUp : handleSignIn}
+              disabled={loading}
+              className="w-full bg-blue-500 text-white p-2 rounded mb-2"
+            >
+              {loading
+                ? isSignUp
+                  ? "Creating Account..."
+                  : "Signing In..."
+                : isSignUp
+                ? "Sign Up"
+                : "Sign In"}
+            </button>
+
+            {isSignUp ? (
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={handlePasswordReset}
+                  className="text-blue-500 text-sm"
+                  disabled={loading}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </main>
   );

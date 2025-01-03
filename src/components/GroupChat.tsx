@@ -25,6 +25,7 @@ interface User {
   uid: string;
   displayName: string;
   email: string;
+  phoneNumber: string;
 }
 
 export default function GroupChat() {
@@ -70,6 +71,7 @@ export default function GroupChat() {
           uid: doc.id,
           displayName: doc.data().displayName,
           email: doc.data().email,
+          phoneNumber: doc.data().phoneNumber,
         })) as User[];
         setUsers(userList);
       } catch (err: any) {
@@ -122,52 +124,59 @@ export default function GroupChat() {
 
         {/* Message Display */}
         <div className="messages flex-grow">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`message py-2 px-4 my-2 rounded-3xl ${
-                message.sender === currentUser?.uid
-                  ? "bg-blue-500 text-white ml-auto"
-                  : "bg-gray-300 text-black mr-auto"
-              }`}
-              style={{
-                maxWidth: window.innerWidth < 640 ? "80%" : "60%",
-                borderTopRightRadius:
-                  message.sender === currentUser?.uid ? 0 : undefined,
-                borderTopLeftRadius:
-                  message.sender !== currentUser?.uid ? 0 : undefined,
-              }}
-            >
-              <div className="flex items-stretch space-x-2 w-full">
-                <p className="font-bold">
-                  {users.find((user) => user.uid === message.sender)
-                    ?.displayName || "Unknown User"}
-                </p>
+          {messages.map((message) => {
+            const messageUser = users.find(
+              (user) => user.uid === message.sender
+            );
+            return (
+              <div
+                key={message.id}
+                className={`message py-2 px-4 my-2 rounded-3xl ${
+                  message.sender === currentUser?.uid
+                    ? "bg-blue-500 text-white ml-auto"
+                    : "bg-gray-300 text-black mr-auto"
+                }`}
+                style={{
+                  maxWidth: window.innerWidth < 640 ? "80%" : "60%",
+                  borderTopRightRadius:
+                    message.sender === currentUser?.uid ? 0 : undefined,
+                  borderTopLeftRadius:
+                    message.sender !== currentUser?.uid ? 0 : undefined,
+                }}
+              >
+                <div className="flex items-stretch space-x-2 w-full">
+                  <p className="font-bold">
+                    {messageUser?.displayName ??
+                      messageUser?.email ??
+                      messageUser?.phoneNumber ??
+                      "Unknown User"}
+                  </p>
+                  <p
+                    className={`text-sm ${
+                      message.sender === currentUser?.uid
+                        ? "text-gray-300"
+                        : "text-gray-500"
+                    } text-right`}
+                  >
+                    {message.createdAt
+                      ? new Date(
+                          message.createdAt.seconds * 1000
+                        ).toLocaleString()
+                      : "Unknown Time"}
+                  </p>
+                </div>
                 <p
-                  className={`text-sm ${
+                  className={`${
                     message.sender === currentUser?.uid
-                      ? "text-gray-300"
-                      : "text-gray-500"
-                  } text-right`}
+                      ? "text-white"
+                      : "text-black"
+                  }`}
                 >
-                  {message.createdAt
-                    ? new Date(
-                        message.createdAt.seconds * 1000
-                      ).toLocaleString()
-                    : "Unknown Time"}
+                  {message.message}
                 </p>
               </div>
-              <p
-                className={`${
-                  message.sender === currentUser?.uid
-                    ? "text-white"
-                    : "text-black"
-                }`}
-              >
-                {message.message}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

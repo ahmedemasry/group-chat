@@ -10,6 +10,7 @@ import GroupChat from "@chat/components/GroupChat";
 
 export default function HomePage() {
   const [user, loading, error] = useAuthState(getAuth(firebaseApp));
+  console.log("user:", user);
   const router = useRouter();
   const db = getFirestore(firebaseApp);
 
@@ -23,9 +24,10 @@ export default function HomePage() {
         userRef,
         {
           uid: user.uid,
-          displayName: user.displayName || "Anonymous", // You can update later if user updates the name
+          displayName: user.displayName, // You can update later if user updates the name
           email: user.email,
           createdAt: new Date(),
+          phoneNumber: user.phoneNumber,
         },
         { merge: true }
       )
