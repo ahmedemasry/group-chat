@@ -35,6 +35,20 @@ export default function AuthPage(): JSX.Element {
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
+
+    // Validate fields before proceeding
+    if (!email || !password) {
+      setError("Email and password are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (!displayName && isSignUp) {
+      setError("Display Name is required for sign up.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const userCredential = await firebaseApp
         .auth()
