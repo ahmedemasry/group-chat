@@ -140,10 +140,8 @@ export default function GroupChat() {
             >
               <div className="flex items-stretch space-x-2 w-full">
                 <p className="font-bold">
-                  {message.sender === currentUser?.uid
-                    ? "You"
-                    : users.find((user) => user.uid === message.sender)
-                        ?.displayName || "Unknown User"}
+                  {users.find((user) => user.uid === message.sender)
+                    ?.displayName || "Unknown User"}
                 </p>
                 <p
                   className={`text-sm ${
