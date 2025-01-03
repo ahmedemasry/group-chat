@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   collection,
   getFirestore,
@@ -9,8 +9,6 @@ import {
   query,
   addDoc,
   Timestamp,
-  getDoc,
-  doc,
   getDocs,
 } from "firebase/firestore";
 import firebaseApp from "@chat/services/firebase";
@@ -35,10 +33,12 @@ export default function GroupChat() {
   const currentUser = auth.currentUser;
 
   const [users, setUsers] = useState<User[]>([]);
-  console.log("users:", users);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Create a ref for the chat container
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch messages and listen to real-time updates
   useEffect(() => {
@@ -64,16 +64,16 @@ export default function GroupChat() {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const usersCollection = collection(db, "users"); // Reference to the users collection
-        const userSnapshot = await getDocs(usersCollection); // Get all documents in the users collection
+        const usersCollection = collection(db, "users");
+        const userSnapshot = await getDocs(usersCollection);
         const userList = userSnapshot.docs.map((doc) => ({
           uid: doc.id,
           displayName: doc.data().displayName,
           email: doc.data().email,
         })) as User[];
-        console.log("userList:", userList);
-        setUsers(userList); // Set the fetched user data to state
+        setUsers(userList);
       } catch (err: any) {
+        console.error("Error fetching users:", err);
       } finally {
         setLoading(false);
       }
@@ -94,9 +94,9 @@ export default function GroupChat() {
       await addDoc(collection(db, "groupChat"), {
         message: newMessage,
         sender: currentUser.uid,
-        createdAt: Timestamp.fromDate(new Date()), // Save current timestamp
+        createdAt: Timestamp.fromDate(new Date()),
       });
-      setNewMessage(""); // Clear the input field
+      setNewMessage("");
     } catch (error) {
       console.error("Error adding message: ", error);
     } finally {
@@ -104,28 +104,41 @@ export default function GroupChat() {
     }
   };
 
-  return (
-    <div className="chat-container bg-gray-100 p-4 rounded shadow max-h-96 overflow-y-auto">
-      <h2 className="text-lg font-bold mb-4">Group Chat</h2>
+  // Auto-scroll to bottom whenever the messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
-      {/* Message Display */}
-      <div className="messages">
-        {messages.map((message) => (
-          <div key={message.id} className="message py-2 border-b">
-            <p className="font-bold">
-              {message.sender === currentUser?.uid
-                ? "You"
-                : users.find((user) => user.uid === message.sender)
-                    ?.displayName || "Unknown User"}
-            </p>
-            <p className="text-gray-700">{message.message}</p>
-            <p className="text-sm text-gray-500">
-              {message.createdAt
-                ? new Date(message.createdAt.seconds * 1000).toLocaleString()
-                : "Unknown Time"}
-            </p>
-          </div>
-        ))}
+  return (
+    <div className="bg-gray-100 p-4 rounded shadow max-h-[80vh] flex flex-col">
+      <div
+        ref={chatContainerRef}
+        className="chat-container bg-gray-100 p-4 rounded shadow max-h-[80vh] overflow-y-auto flex flex-col"
+      >
+        <h2 className="text-lg font-bold mb-4">Group Chat</h2>
+
+        {/* Message Display */}
+        <div className="messages flex-grow">
+          {messages.map((message) => (
+            <div key={message.id} className="message py-2 border-b">
+              <p className="font-bold">
+                {message.sender === currentUser?.uid
+                  ? "You"
+                  : users.find((user) => user.uid === message.sender)
+                      ?.displayName || "Unknown User"}
+              </p>
+              <p className="text-gray-700">{message.message}</p>
+              <p className="text-sm text-gray-500">
+                {message.createdAt
+                  ? new Date(message.createdAt.seconds * 1000).toLocaleString()
+                  : "Unknown Time"}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Message Input Form */}
