@@ -1,7 +1,7 @@
 ## Video Recordings from the project
 
 
-
+### Users can only add messages with their own UID.
 https://github.com/user-attachments/assets/5b1c30ab-fbe2-4949-b280-83e0dd34ff23
 
 
