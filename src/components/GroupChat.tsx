@@ -11,6 +11,7 @@ import {
   Timestamp,
   getDoc,
   doc,
+  getDocs,
 } from "firebase/firestore";
 import firebaseApp from "@chat/services/firebase";
 import { getAuth } from "firebase/auth";
@@ -25,6 +26,7 @@ interface Message {
 interface User {
   uid: string;
   displayName: string;
+  email: string;
 }
 
 export default function GroupChat() {
@@ -32,11 +34,11 @@ export default function GroupChat() {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
+  const [users, setUsers] = useState<User[]>([]);
+  console.log("users:", users);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [users, setUsers] = useState<{ [key: string]: string }>({});
   const [newMessage, setNewMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  console.log("messages:", messages);
 
   // Fetch messages and listen to real-time updates
   useEffect(() => {
@@ -59,26 +61,26 @@ export default function GroupChat() {
 
   // Fetch user details from Firestore for each sender
   useEffect(() => {
-    const fetchUserDetails = async (uid: string) => {
-      const userDoc = doc(db, "users", uid); // Assuming you have a "users" collection
-      const userSnapshot = await getDoc(userDoc);
-
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        setUsers((prevUsers) => ({
-          ...prevUsers,
-          [uid]: userData?.displayName || "Unknown User",
-        }));
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const usersCollection = collection(db, "users"); // Reference to the users collection
+        const userSnapshot = await getDocs(usersCollection); // Get all documents in the users collection
+        const userList = userSnapshot.docs.map((doc) => ({
+          uid: doc.id,
+          displayName: doc.data().displayName,
+          email: doc.data().email,
+        })) as User[];
+        console.log("userList:", userList);
+        setUsers(userList); // Set the fetched user data to state
+      } catch (err: any) {
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Fetch names for all senders
-    messages.forEach((message) => {
-      if (message.sender && !users[message.sender]) {
-        fetchUserDetails(message.sender);
-      }
-    });
-  }, [messages, db, users]);
+    fetchUsers();
+  }, [db]);
 
   // Handle message submission
   const handleMessageSubmit = async (e: React.FormEvent) => {
@@ -113,7 +115,8 @@ export default function GroupChat() {
             <p className="font-bold">
               {message.sender === currentUser?.uid
                 ? "You"
-                : users[message.sender] || "Unknown User"}
+                : users.find((user) => user.uid === message.sender)
+                    ?.displayName || "Unknown User"}
             </p>
             <p className="text-gray-700">{message.message}</p>
             <p className="text-sm text-gray-500">
