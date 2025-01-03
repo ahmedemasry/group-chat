@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "target": "es6",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "outDir": "lib",
-    "sourceMap": true,
-    "strict": true
-    // "target": "es2017"
+    "module": "CommonJS", // Use CommonJS for compatibility with Firebase SDK
+    "target": "ES6", // Target ES6 for modern features
+    "skipLibCheck": true, // Skip library checks to avoid issues with type definitions
+    "esModuleInterop": true, // Allow default imports from CommonJS modules
+    "moduleResolution": "node", // Use Node.js module resolution strategy
+    "noImplicitReturns": true, // Ensure functions have a return type
+    "noUnusedLocals": true, // Detect unused variables
+    "outDir": "lib", // Specify output directory for compiled files
+    "sourceMap": true, // Enable source maps for debugging
+    "strict": true, // Enable strict mode for better type safety
+    "types": ["node", "firebase-admin"] // Include types for node and firebase-admin
   },
   "compileOnSave": true,
-  "include": ["src"]
+  "include": ["src"] // Include the source folder where your TypeScript files are
 }
