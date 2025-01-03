@@ -1,8 +1,13 @@
-## Video Recordings from the project
+# Group Chat Application with Next.js and Firebase
 
 
 ### Users can only add messages with their own UID.
+
 https://github.com/user-attachments/assets/5b1c30ab-fbe2-4949-b280-83e0dd34ff23
+
+### Cloud function tested locally on Firebase Emulator
+
+https://github.com/user-attachments/assets/cda9a7bb-5819-4176-a725-ca064656ace0
 
 
 
