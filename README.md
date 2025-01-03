@@ -141,7 +141,7 @@ service cloud.firestore {
 ## Deployment
 
 ### Deploy the Application
-Deploy your application to Vercel by connecting your GitHub repository to Vercel and following their instructions.
+Deployed the application to [Vercel](group-chat-amber.vercel.app) by connecting your GitHub repository to Vercel and following their instructions.
 
 ### Deploy Firebase Functions
 ```bash
