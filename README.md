@@ -2,7 +2,7 @@
 
 ## Live Preview
 
-[🚀 Check out the live demo](group-chat-amber.vercel.app)
+[🚀 Check out the live demo](https://group-chat-amber.vercel.app)
 
 ## Videos
 
@@ -141,7 +141,7 @@ service cloud.firestore {
 ## Deployment
 
 ### Deploy the Application
-Deployed the application to [Vercel](group-chat-amber.vercel.app) by connecting your GitHub repository to Vercel and following their instructions.
+Deployed the application to [Vercel](https://group-chat-amber.vercel.app/) by connecting your GitHub repository to Vercel and following their instructions.
 
 ### Deploy Firebase Functions
 ```bash
