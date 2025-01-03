@@ -7,13 +7,37 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import * as functions from "firebase-functions/v1";
+import * as admin from "firebase-admin";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+admin.initializeApp();
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+const db = admin.firestore();
+
+export const notifyOnNewMessage = functions.firestore
+  .document("groupChat/{messageId}")
+  .onCreate(async (snapshot, context) => {
+    const newMessage = snapshot.data();
+
+    if (!newMessage) {
+      console.error("No message data found");
+      return;
+    }
+
+    // Fetch all users from the "users" collection
+    try {
+      const usersSnapshot = await db.collection("users").get();
+      const users = usersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      users.forEach((user: any) => {
+        console.log(
+          `Notification sent to ${user.displayName} with id ${user.id}`
+        );
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  });
