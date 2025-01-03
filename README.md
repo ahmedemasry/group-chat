@@ -1,5 +1,9 @@
 # Group Chat Application with Next.js and Firebase
 
+## Live Preview
+
+[🚀 Check out the live demo](group-chat-amber.vercel.app)
+
 ## Videos
 
 ### Authenticated user can send messages and see all messages from others
