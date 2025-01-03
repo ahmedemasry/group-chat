@@ -1,5 +1,7 @@
 # Group Chat Application with Next.js and Firebase
 
+## Videos
+
 ### Authenticated user can send messages and see all messages from others
 
 https://github.com/user-attachments/assets/d81683af-aba2-42d1-8726-2934743b159d
