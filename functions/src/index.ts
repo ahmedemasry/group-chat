@@ -13,7 +13,7 @@ import * as admin from "firebase-admin";
 interface User {
   id: string;
   displayName: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 admin.initializeApp();
 
