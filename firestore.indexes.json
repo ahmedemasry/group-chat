@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    {
+      "collectionId": "groupChat",
+      "fields": [{ "fieldPath": "createdAt" }, { "fieldPath": "sender" }],
+      "queryScope": "COLLECTION"
+    },
+    {
+      "collectionId": "users",
+      "fields": [{ "fieldPath": "uid" }],
+      "queryScope": "COLLECTION"
+    }
+  ],
+  "fieldOverrides": []
+}
