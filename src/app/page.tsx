@@ -3,12 +3,40 @@
 import firebaseApp from "@chat/services/firebase";
 import { getAuth } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 import GroupChat from "@chat/components/GroupChat";
 
-export default function Home() {
+export default function HomePage() {
   const [user, loading, error] = useAuthState(getAuth(firebaseApp));
   const router = useRouter();
+  const db = getFirestore(firebaseApp);
+
+  // On User Sign-In or Sign-Up, create user document in Firestore if it doesn't exist
+  useEffect(() => {
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+
+      // Check if the user document exists, if not, create one
+      setDoc(
+        userRef,
+        {
+          uid: user.uid,
+          displayName: user.displayName || "Anonymous", // You can update later if user updates the name
+          email: user.email,
+          createdAt: new Date(),
+        },
+        { merge: true }
+      )
+        .then(() => {
+          console.log("User document created/updated in Firestore");
+        })
+        .catch((error) => {
+          console.error("Error creating user document: ", error);
+        });
+    }
+  }, [user, db]);
 
   if (loading) {
     return (
@@ -39,7 +67,7 @@ export default function Home() {
             Logout
           </button>
         </header>
-        <section className="w-full max-w-4xl flex flex-col gap-4 p-4">
+        <section className="w-full max-w-4xl flex flex-col gap-4 p-4 flex-grow">
           <h2 className="text-lg font-bold">
             Welcome, {user.displayName || user.email}
           </h2>
