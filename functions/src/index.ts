@@ -10,13 +10,18 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 
+interface User {
+  id: string;
+  displayName: string;
+  [key: string]: any;
+}
 admin.initializeApp();
 
 const db = admin.firestore();
 
 export const notifyOnNewMessage = functions.firestore
   .document("groupChat/{messageId}")
-  .onCreate(async (snapshot, context) => {
+  .onCreate(async (snapshot) => {
     const newMessage = snapshot.data();
 
     if (!newMessage) {
@@ -27,12 +32,13 @@ export const notifyOnNewMessage = functions.firestore
     // Fetch all users from the "users" collection
     try {
       const usersSnapshot = await db.collection("users").get();
-      const users = usersSnapshot.docs.map((doc) => ({
+      const users: User[] = usersSnapshot.docs.map((doc) => ({
         id: doc.id,
+        displayName: doc.data().displayName,
         ...doc.data(),
       }));
 
-      users.forEach((user: any) => {
+      users.forEach((user: User) => {
         console.log(
           `Notification sent to ${user.displayName} with id ${user.id}`
         );
