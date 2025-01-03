@@ -123,18 +123,50 @@ export default function GroupChat() {
         {/* Message Display */}
         <div className="messages flex-grow">
           {messages.map((message) => (
-            <div key={message.id} className="message py-2 border-b">
-              <p className="font-bold">
-                {message.sender === currentUser?.uid
-                  ? "You"
-                  : users.find((user) => user.uid === message.sender)
-                      ?.displayName || "Unknown User"}
-              </p>
-              <p className="text-gray-700">{message.message}</p>
-              <p className="text-sm text-gray-500">
-                {message.createdAt
-                  ? new Date(message.createdAt.seconds * 1000).toLocaleString()
-                  : "Unknown Time"}
+            <div
+              key={message.id}
+              className={`message py-2 px-4 my-2 rounded-3xl ${
+                message.sender === currentUser?.uid
+                  ? "bg-blue-500 text-white ml-auto"
+                  : "bg-gray-300 text-black mr-auto"
+              }`}
+              style={{
+                maxWidth: window.innerWidth < 640 ? "80%" : "60%",
+                borderTopRightRadius:
+                  message.sender === currentUser?.uid ? 0 : undefined,
+                borderTopLeftRadius:
+                  message.sender !== currentUser?.uid ? 0 : undefined,
+              }}
+            >
+              <div className="flex items-stretch space-x-2 w-full">
+                <p className="font-bold">
+                  {message.sender === currentUser?.uid
+                    ? "You"
+                    : users.find((user) => user.uid === message.sender)
+                        ?.displayName || "Unknown User"}
+                </p>
+                <p
+                  className={`text-sm ${
+                    message.sender === currentUser?.uid
+                      ? "text-gray-300"
+                      : "text-gray-500"
+                  } text-right`}
+                >
+                  {message.createdAt
+                    ? new Date(
+                        message.createdAt.seconds * 1000
+                      ).toLocaleString()
+                    : "Unknown Time"}
+                </p>
+              </div>
+              <p
+                className={`${
+                  message.sender === currentUser?.uid
+                    ? "text-white"
+                    : "text-black"
+                }`}
+              >
+                {message.message}
               </p>
             </div>
           ))}
