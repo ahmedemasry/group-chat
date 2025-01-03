@@ -1,3 +1,12 @@
+## Video Recordings from the project
+
+
+
+https://github.com/user-attachments/assets/5b1c30ab-fbe2-4949-b280-83e0dd34ff23
+
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
