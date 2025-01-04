@@ -1,19 +1,13 @@
 "use client";
 
-import firebaseApp from "@chat/services/firebase";
-import { getAuth } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useEffect } from "react";
+import { UserProvider, useUser } from "@chat/context/UserContext";
 import { useRouter } from "next/navigation";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
 import GroupChat from "@chat/components/GroupChat";
 import useCreateUserDocument from "@chat/hooks/useCreateUserDocument";
 
-export default function HomePage() {
-  const [user, loading, error] = useAuthState(getAuth(firebaseApp));
-  console.log("user:", user);
+function HomePageContent() {
+  const { user, loading, error, logout } = useUser();
   const router = useRouter();
-  const db = getFirestore(firebaseApp);
 
   useCreateUserDocument(user);
 
@@ -39,10 +33,7 @@ export default function HomePage() {
       <main className="flex min-h-screen flex-col items-center justify-between p-6">
         <header className="w-full flex items-center justify-between p-4 bg-gray-800 text-white">
           <h1 className="text-xl">Group Chat</h1>
-          <button
-            onClick={() => getAuth(firebaseApp).signOut()}
-            className="bg-red-500 px-4 py-2 rounded"
-          >
+          <button onClick={logout} className="bg-red-500 px-4 py-2 rounded">
             Logout
           </button>
         </header>
@@ -68,5 +59,13 @@ export default function HomePage() {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <UserProvider>
+      <HomePageContent />
+    </UserProvider>
   );
 }
