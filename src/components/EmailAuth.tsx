@@ -1,6 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import useEmailSignIn from "@chat/hooks/useEmailSignIn";
 import useEmailSignUp from "@chat/hooks/useEmailSignUp";
+import { Strings } from "@chat/util/strings";
 
 interface EmailAuthProps {
   isSignUp: boolean;
@@ -33,14 +34,14 @@ const EmailAuth: React.FC<EmailAuthProps> = ({ isSignUp }) => {
     <>
       <input
         type="email"
-        placeholder="Email"
+        placeholder={Strings.EMAIL_PLACEHOLDER}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
       />
       <input
         type="password"
-        placeholder="Password"
+        placeholder={Strings.PASSWORD_PLACEHOLDER}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
@@ -48,7 +49,7 @@ const EmailAuth: React.FC<EmailAuthProps> = ({ isSignUp }) => {
       {isSignUp && (
         <input
           type="text"
-          placeholder="Display Name"
+          placeholder={Strings.DISPLAY_NAME_PLACEHOLDER}
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           className="w-full p-2 mb-4 border rounded"
@@ -61,15 +62,19 @@ const EmailAuth: React.FC<EmailAuthProps> = ({ isSignUp }) => {
       >
         {isSignUp
           ? signUpLoading
-            ? "Creating Account..."
-            : "Sign Up"
+            ? Strings.CREATING_ACCOUNT
+            : Strings.SIGN_UP
           : signInLoading
-          ? "Signing In..."
-          : "Sign In"}
+          ? Strings.SIGNING_IN
+          : Strings.SIGN_IN}
       </button>
       {isSignUp
-        ? signUpError && <p className="text-red-500 mb-4">{signUpError}</p>
-        : signInError && <p className="text-red-500 mb-4">{signInError}</p>}
+        ? signUpError && (
+            <p className="text-red-500 mb-4">{Strings.SIGN_UP_ERROR}</p>
+          )
+        : signInError && (
+            <p className="text-red-500 mb-4">{Strings.SIGN_IN_ERROR}</p>
+          )}
     </>
   );
 };

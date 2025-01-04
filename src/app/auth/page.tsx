@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import EmailAuth from "@chat/components/EmailAuth";
 import PhoneAuth from "@chat/components/PhoneAuth";
+import { Strings } from "@chat/util/strings";
 
 export default function AuthPage(): JSX.Element {
   const [isSignUp, setIsSignUp] = useState(false); // State to toggle between Sign In and Sign Up
   const [isPhoneAuth, setIsPhoneAuth] = useState(false); // State to toggle between Phone Auth and Email Auth
+
+  const authTitle = useMemo(() => {
+    if (isPhoneAuth) {
+      return Strings.PHONE_AUTHENTICATION;
+    }
+    if (isSignUp) {
+      return Strings.SIGN_UP;
+    }
+    return Strings.SIGN_IN;
+  }, [isPhoneAuth, isSignUp]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6">
@@ -24,7 +35,7 @@ export default function AuthPage(): JSX.Element {
                 : ""
             }`}
           >
-            Email Auth
+            {Strings.EMAIL_AUTH}
           </button>
           <button
             onClick={() => {
@@ -35,7 +46,7 @@ export default function AuthPage(): JSX.Element {
               isSignUp ? "border-b-2 border-blue-500 font-bold" : ""
             }`}
           >
-            Sign Up
+            {Strings.SIGN_UP}
           </button>
           <button
             onClick={() => setIsPhoneAuth(true)}
@@ -43,17 +54,11 @@ export default function AuthPage(): JSX.Element {
               isPhoneAuth ? "border-b-2 border-blue-500 font-bold" : ""
             }`}
           >
-            Phone Auth
+            {Strings.PHONE_AUTH}
           </button>
         </div>
 
-        <h1 className="text-xl font-bold mb-4">
-          {isPhoneAuth
-            ? "Phone Authentication"
-            : isSignUp
-            ? "Sign Up"
-            : "Sign In"}
-        </h1>
+        <h1 className="text-xl font-bold mb-4">{authTitle}</h1>
 
         {isPhoneAuth ? <PhoneAuth /> : <EmailAuth isSignUp={isSignUp} />}
       </div>

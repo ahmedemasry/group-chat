@@ -1,4 +1,5 @@
 import { Message } from "@chat/types";
+import { Strings } from "@chat/util/strings";
 import { User } from "firebase/auth";
 import React from "react";
 
@@ -34,7 +35,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
           {messageUser?.displayName ??
             messageUser?.email ??
             messageUser?.phoneNumber ??
-            "Unknown User"}
+            Strings.UNKNOWN_USER}
         </p>
         <p
           className={`text-sm ${
@@ -45,7 +46,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
         >
           {message.createdAt
             ? new Date(message.createdAt.seconds * 1000).toLocaleString()
-            : "Unknown Time"}
+            : Strings.UNKNOWN_TIME}
         </p>
       </div>
       <p

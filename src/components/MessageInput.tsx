@@ -1,3 +1,4 @@
+import { Strings } from "@chat/util/strings";
 import React from "react";
 
 interface MessageInputProps {
@@ -27,7 +28,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         disabled={loading || !newMessage.trim()}
         className="bg-blue-500 text-white p-2 rounded"
       >
-        {loading ? "Sending..." : "Send"}
+        {loading ? Strings.SENDING : Strings.SEND}
       </button>
     </form>
   );

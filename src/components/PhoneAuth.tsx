@@ -1,5 +1,6 @@
 import { useState } from "react";
 import usePhoneAuth from "@chat/hooks/usePhoneAuth";
+import { Strings } from "@chat/util/strings";
 
 const PhoneAuth: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -10,7 +11,7 @@ const PhoneAuth: React.FC = () => {
     <>
       <input
         type="text"
-        placeholder="Phone Number"
+        placeholder={Strings.PHONE_NUMBER}
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
@@ -20,7 +21,7 @@ const PhoneAuth: React.FC = () => {
         disabled={loading}
         className="w-full bg-blue-500 text-white p-2 rounded mb-2"
       >
-        {loading ? "Sending OTP..." : "Send OTP"}
+        {loading ? Strings.SENDING_OTP : Strings.SEND_OTP}
       </button>
       <div id="recaptcha-container"></div>
 
@@ -29,7 +30,7 @@ const PhoneAuth: React.FC = () => {
           <input
             type="text"
             placeholder="Verification Code"
-            value={verificationCode}
+            value={Strings.VERIFICATION_CODE}
             onChange={(e) => setVerificationCode(e.target.value)}
             className="w-full p-2 mb-4 border rounded"
           />
@@ -38,7 +39,7 @@ const PhoneAuth: React.FC = () => {
             disabled={loading}
             className="w-full bg-blue-500 text-white p-2 rounded mb-2"
           >
-            {loading ? "Verifying..." : "Verify Code"}
+            {loading ? Strings.VERIFYING : Strings.VERIFY_CODE}
           </button>
         </>
       )}
