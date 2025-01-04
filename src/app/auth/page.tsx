@@ -5,7 +5,6 @@ import "firebase/compat/auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import firebaseApp from "@chat/services/firebase";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
 
 export default function AuthPage(): JSX.Element {
   const [email, setEmail] = useState("");
@@ -21,8 +20,6 @@ export default function AuthPage(): JSX.Element {
   const [confirmResult, setConfirmResult] =
     useState<firebase.auth.ConfirmationResult | null>(null); // Store confirmation result for phone auth
   const router = useRouter(); // Next.js router for navigation
-
-  const db = getFirestore(firebaseApp); // Firestore instance
 
   // Email Sign-In
   const handleSignIn = async () => {
@@ -62,18 +59,8 @@ export default function AuthPage(): JSX.Element {
         .createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // Store the user's display name in Firestore
-      if (user?.uid) {
-        const userRef = doc(db, "users", user.uid);
-        await setDoc(userRef, {
-          uid: user.uid,
-          displayName: displayName, // Use the provided display name or default to "Anonymous"
-          email: user.email,
-          createdAt: new Date(),
-          phoneNumber: user.phoneNumber,
-        });
-
-        // Optionally, update the Firebase user profile display name
+      // Optionally, update the Firebase user profile display name
+      if (user) {
         await user.updateProfile({
           displayName: displayName,
         });

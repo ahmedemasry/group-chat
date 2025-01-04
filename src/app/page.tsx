@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
 import GroupChat from "@chat/components/GroupChat";
+import useCreateUserDocument from "@chat/hooks/useCreateUserDocument";
 
 export default function HomePage() {
   const [user, loading, error] = useAuthState(getAuth(firebaseApp));
@@ -14,31 +15,7 @@ export default function HomePage() {
   const router = useRouter();
   const db = getFirestore(firebaseApp);
 
-  // On User Sign-In or Sign-Up, create user document in Firestore if it doesn't exist
-  useEffect(() => {
-    if (user) {
-      const userRef = doc(db, "users", user.uid);
-
-      // Check if the user document exists, if not, create one
-      setDoc(
-        userRef,
-        {
-          uid: user.uid,
-          displayName: user.displayName, // You can update later if user updates the name
-          email: user.email,
-          createdAt: new Date(),
-          phoneNumber: user.phoneNumber,
-        },
-        { merge: true }
-      )
-        .then(() => {
-          console.log("User document created/updated in Firestore");
-        })
-        .catch((error) => {
-          console.error("Error creating user document: ", error);
-        });
-    }
-  }, [user, db]);
+  useCreateUserDocument(user);
 
   if (loading) {
     return (
