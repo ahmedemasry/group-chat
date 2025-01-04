@@ -29,7 +29,6 @@ export const notifyOnNewMessage = functions.firestore
       return;
     }
 
-    // Fetch all users from the "users" collection
     try {
       const usersSnapshot = await db.collection("users").get();
       const users: User[] = usersSnapshot.docs.map((doc) => ({

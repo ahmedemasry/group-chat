@@ -1,118 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
-import {
-  collection,
-  getFirestore,
-  onSnapshot,
-  orderBy,
-  query,
-  addDoc,
-  Timestamp,
-  getDocs,
-} from "firebase/firestore";
-import firebaseApp from "@chat/services/firebase";
-import { getAuth } from "firebase/auth";
-
-interface Message {
-  id: string;
-  message: string;
-  sender: string;
-  createdAt: { seconds: number; nanoseconds: number } | null;
-}
-
-interface User {
-  uid: string;
-  displayName: string;
-  email: string;
-  phoneNumber: string;
-}
+import useFetchUserDetails from "@chat/hooks/useFetchUsersDetails";
+import useMessages from "@chat/hooks/useMessages";
 
 export default function GroupChat() {
-  const db = useMemo(() => getFirestore(firebaseApp), []);
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
+  const {
+    handleMessageSubmit,
+    loadingMessages,
+    messages,
+    newMessage,
+    setNewMessage,
+    chatContainerRef,
+    currentUser,
+  } = useMessages();
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const { loadingUsers, users } = useFetchUserDetails();
 
-  // Create a ref for the chat container
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  // Fetch messages and listen to real-time updates
-  useEffect(() => {
-    const messagesQuery = query(
-      collection(db, "groupChat"),
-      orderBy("createdAt", "asc")
-    );
-
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const fetchedMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Message[];
-
-      setMessages(fetchedMessages);
-    });
-
-    return () => unsubscribe();
-  }, [db]);
-
-  // Fetch user details from Firestore for each sender
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const usersCollection = collection(db, "users");
-        const userSnapshot = await getDocs(usersCollection);
-        const userList = userSnapshot.docs.map((doc) => ({
-          uid: doc.id,
-          displayName: doc.data().displayName,
-          email: doc.data().email,
-          phoneNumber: doc.data().phoneNumber,
-        })) as User[];
-        setUsers(userList);
-      } catch (err: any) {
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [db]);
-
-  // Handle message submission
-  const handleMessageSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !currentUser) return;
-
-    setLoading(true);
-
-    try {
-      // Add a new message to Firestore
-      await addDoc(collection(db, "groupChat"), {
-        message: newMessage,
-        sender: currentUser.uid,
-        createdAt: Timestamp.fromDate(new Date()),
-      });
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error adding message: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Auto-scroll to bottom whenever the messages change
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const loading = loadingMessages || loadingUsers;
 
   return (
     <div className="bg-gray-100 p-4 rounded shadow max-h-[80vh] flex flex-col">

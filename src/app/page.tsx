@@ -28,7 +28,6 @@ function HomePageContent() {
   }
 
   if (user) {
-    // Group Chat Page Layout for logged-in users
     return (
       <main className="flex min-h-screen flex-col items-center justify-between p-6">
         <header className="w-full flex items-center justify-between p-4 bg-gray-800 text-white">
@@ -47,7 +46,6 @@ function HomePageContent() {
     );
   }
 
-  // Landing Page Layout for logged-out users
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="flex flex-col items-center justify-center">
