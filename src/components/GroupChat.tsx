@@ -2,6 +2,7 @@
 
 import useFetchUserDetails from "@chat/hooks/useFetchUsersDetails";
 import useMessages from "@chat/hooks/useMessages";
+import MessageInput from "./MessageInput";
 
 export default function GroupChat() {
   const {
@@ -85,22 +86,12 @@ export default function GroupChat() {
       </div>
 
       {/* Message Input Form */}
-      <form onSubmit={handleMessageSubmit} className="mt-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Type your message"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="submit"
-          disabled={loading || !newMessage.trim()}
-          className="bg-blue-500 text-white p-2 rounded"
-        >
-          {loading ? "Sending..." : "Send"}
-        </button>
-      </form>
+      <MessageInput
+        handleMessageSubmit={handleMessageSubmit}
+        loading={loading}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
+      ></MessageInput>
     </div>
   );
 }
