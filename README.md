@@ -124,15 +124,33 @@ firebase deploy --only functions
 Implement these Firestore security rules to ensure secure data handling:
 
 ```javascript
+rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /groupChat/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.sender;
+    
+    // Match all documents in the "groupChat" collection
+    match /groupChat/{documentId} {
+ 			// Only allow users who are authenticated
+      allow read: if request.auth != null;
+    	// Allow writing only if the sender is the authenticated user
+      allow write: if request.auth != null && request.resource.data.sender == request.auth.uid;
+
+     	allow update: if request.auth != null && resource.data.sender == request.auth.uid;
+      
+      allow delete: if false;  // Disable deletion
     }
 
+    // Match documents in the "users" collection
     match /users/{userId} {
-      allow read: if request.auth != null;
+      // Allow all authenticated users to read only
+      allow read: if request.auth != null ;
+      
       allow write: if request.auth != null && request.auth.uid == userId;
+      
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      allow delete: if false;  // Disable deletion
     }
   }
 }
