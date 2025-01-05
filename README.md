@@ -56,8 +56,8 @@ To set up the project locally, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/group-chat-nextjs-firebase.git
-   cd group-chat-nextjs-firebase
+   git clone https://github.com/ahmedemasry/group-chat
+   cd group-chat
    ```
 
 2. Install dependencies:
